@@ -2,14 +2,16 @@ package com.example.task.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.OnClickListener
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.task.R
 import com.example.task.databinding.ItemTaskBinding
 import com.example.task.dto.TaskDto
+import com.example.task.ui.listener.TaskClickListener
 
-class TaskAdapter: RecyclerView.Adapter<TaskAdapter.ViewHolder>() {
+class TaskAdapter(val clickListener: TaskClickListener): RecyclerView.Adapter<TaskAdapter.ViewHolder>() {
 
     private var dataset: List<TaskDto> = emptyList()
 
@@ -32,6 +34,9 @@ class TaskAdapter: RecyclerView.Adapter<TaskAdapter.ViewHolder>() {
 
         holder.binding.textDescription.text = taskDto.description
         holder.binding.imageDone.setColorFilter(color)
+        holder.binding.imageDone.setOnClickListener{
+            clickListener.clickDone(position)
+        }
     }
 
     override fun getItemCount(): Int {

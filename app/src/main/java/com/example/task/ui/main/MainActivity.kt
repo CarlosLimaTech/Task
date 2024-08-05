@@ -1,6 +1,10 @@
 package com.example.task.ui.main
 
+import android.content.DialogInterface
 import android.os.Bundle
+import android.view.View
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -8,13 +12,18 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.task.R
 import com.example.task.databinding.ActivityMainBinding
+import com.example.task.databinding.DialogTaskBinding
 import com.example.task.ui.adapter.TaskAdapter
+import com.example.task.ui.listener.TaskClickListener
 
-class MainActivity : AppCompatActivity() {
+class MainActivity:
+    AppCompatActivity(),
+    View.OnClickListener,
+    TaskClickListener{
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: MainViewModel
-    private val adapter = TaskAdapter()
+    private val adapter = TaskAdapter(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,6 +34,13 @@ class MainActivity : AppCompatActivity() {
 
         setupRecyclerView()
         setupObservers()
+        sutupListener()
+    }
+
+    override fun onClick(view: View) {
+        if( view.id == R.id.button_add) {
+            newTask();
+        }
     }
 
     private fun setupRecyclerView(){
@@ -33,6 +49,53 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupObservers(){
-        viewModel.tasks.observe(this, Observer { adapter.submitDataset(it).adapter.notifyDataSetChange() })
+        viewModel.tasks.observe(this, Observer {
+            adapter.submitDataset(it)
+            adapter.notifyDataSetChanged() })
+
+        viewModel.insertedTask.observe(this, Observer {
+            val str: String = if(it) {
+                "Tarefa inserida com sucesso!"
+            } else {
+                "Erro ao inserir a tarefa!"
+            }
+
+            Toast.makeText(this, str, Toast.LENGTH_LONG).show()
+        })
+
+        viewModel.updateTask.observe(this, Observer {
+            val str: String = if(it) {
+                "Estado da tarefa altaro com sucesso!"
+            } else {
+                "Estado a tarefa não foi alterado!"
+            }
+            Toast.makeText(this, str, Toast.LENGTH_LONG).show()
+        })
     }
+
+    private fun sutupListener() {
+        binding.buttonAdd.setOnClickListener(this)
+    }
+
+    private fun newTask() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_task, null)
+
+        val bindingDialog: DialogTaskBinding = DialogTaskBinding.bind(dialogView)
+
+        val builder = AlertDialog.Builder(this).setView(dialogView).setTitle("Adicionar nova Tarefa").setPositiveButton("Salvar", DialogInterface.OnClickListener{ dialog, witch ->
+            val str = bindingDialog.eitDescription.text.toString()
+            viewModel.addTask(str)
+            dialog.dismiss()
+        })
+            .setNegativeButton("Cancelar", DialogInterface.OnClickListener{dialog,  witch ->
+                dialog.dismiss()
+            })
+        val dialog = builder.create()
+        dialog.show()
+    }
+
+    override fun clickDone(position: Int) {
+        viewModel.handleDone(position)
+    }
+
 }

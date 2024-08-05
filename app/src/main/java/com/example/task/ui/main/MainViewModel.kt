@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.example.task.data.model.Task
 import com.example.task.data.repository.TasksRepository
 import com.example.task.dto.TaskDto
+import java.text.FieldPosition
 
 class MainViewModel: ViewModel() {
 
@@ -17,19 +18,38 @@ class MainViewModel: ViewModel() {
             return _tasks
     }
 
+    private val _insertedTask = MutableLiveData<Boolean>()
+    val insertedTask: LiveData<Boolean> = _insertedTask
+
+    private val _updateTask = MutableLiveData<Boolean>()
+    val updateTask: LiveData<Boolean>get() = _updateTask
+
     init{
         loadData()
     }
 
+    fun addTask(str: String) {
+        val task = Task( str, false)
+        repository.insert(task)
+        _insertedTask.value = true
+        loadData()
+    }
+
+    fun handleDone(position: Int){
+        val dto = _tasks.value?.get(position)
+        if(dto != null){
+            val task = repository.findById(dto.id)
+
+            task.isCompleted = !task.isCompleted
+            _updateTask.value = true
+            loadData()
+        }
+    }
+
     private fun loadData() {
-        /*
+
         val taskList = repository.findAll()
         val taskDtoList = taskList.map { task: Task ->  TaskDto(task.id, task.description, task.isCompleted) }
-*/
-        val taskDtoList = listOf(
-            TaskDto(1, "Arrumar cama"),
-            TaskDto(2, "Lavar roupa")
-        )
         _tasks.value = taskDtoList
     }
 }

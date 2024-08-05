@@ -1,6 +1,6 @@
 package com.example.task.data.model
 
-class Task (var_description: String, var isCompleted: Boolean) {
+class Task(var description: String, var isCompleted: Boolean) {
 
     companion object{
         var lastId: Long = 1L
