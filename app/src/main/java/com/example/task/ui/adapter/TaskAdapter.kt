@@ -37,6 +37,10 @@ class TaskAdapter(val clickListener: TaskClickListener): RecyclerView.Adapter<Ta
         holder.binding.imageDone.setOnClickListener{
             clickListener.clickDone(position)
         }
+        holder.binding.imageDelete.setOnClickListener {
+            clickListener.clickDelete(taskDto.id)
+        }
+
     }
 
     override fun getItemCount(): Int {

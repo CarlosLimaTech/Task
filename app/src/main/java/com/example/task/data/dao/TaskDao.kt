@@ -16,4 +16,9 @@ object TaskDao {
     fun getTask(id: Long): Task {
         return tasks.stream().filter { item -> item.id == id }.findFirst().orElse(null)
     }
+
+    fun deleteTask(id: Long) {
+        tasks.removeIf { it.id == id }
+    }
+
 }

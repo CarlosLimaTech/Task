@@ -18,4 +18,8 @@ class TasksRepository {
         dao.addTask(task)
     }
 
+    fun delete(id: Long) {
+        dao.deleteTask(id)
+    }
+
 }

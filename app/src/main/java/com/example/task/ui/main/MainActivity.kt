@@ -9,17 +9,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.task.R
 import com.example.task.databinding.ActivityMainBinding
 import com.example.task.databinding.DialogTaskBinding
 import com.example.task.ui.adapter.TaskAdapter
 import com.example.task.ui.listener.TaskClickListener
 
-class MainActivity:
+class MainActivity :
     AppCompatActivity(),
     View.OnClickListener,
-    TaskClickListener{
+    TaskClickListener {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: MainViewModel
@@ -34,27 +33,28 @@ class MainActivity:
 
         setupRecyclerView()
         setupObservers()
-        sutupListener()
+        setupListener()
     }
 
     override fun onClick(view: View) {
-        if( view.id == R.id.button_add) {
-            newTask();
+        if (view.id == R.id.button_add) {
+            newTask()
         }
     }
 
-    private fun setupRecyclerView(){
+    private fun setupRecyclerView() {
         binding.recyclerTask.layoutManager = LinearLayoutManager(this)
         binding.recyclerTask.adapter = adapter
     }
 
-    private fun setupObservers(){
+    private fun setupObservers() {
         viewModel.tasks.observe(this, Observer {
             adapter.submitDataset(it)
-            adapter.notifyDataSetChanged() })
+            adapter.notifyDataSetChanged()
+        })
 
         viewModel.insertedTask.observe(this, Observer {
-            val str: String = if(it) {
+            val str: String = if (it) {
                 "Tarefa inserida com sucesso!"
             } else {
                 "Erro ao inserir a tarefa!"
@@ -64,16 +64,16 @@ class MainActivity:
         })
 
         viewModel.updateTask.observe(this, Observer {
-            val str: String = if(it) {
-                "Estado da tarefa altaro com sucesso!"
+            val str: String = if (it) {
+                "Estado da tarefa alterado com sucesso!"
             } else {
-                "Estado a tarefa não foi alterado!"
+                "Estado da tarefa não foi alterado!"
             }
             Toast.makeText(this, str, Toast.LENGTH_LONG).show()
         })
     }
 
-    private fun sutupListener() {
+    private fun setupListener() {
         binding.buttonAdd.setOnClickListener(this)
     }
 
@@ -82,14 +82,17 @@ class MainActivity:
 
         val bindingDialog: DialogTaskBinding = DialogTaskBinding.bind(dialogView)
 
-        val builder = AlertDialog.Builder(this).setView(dialogView).setTitle("Adicionar nova Tarefa").setPositiveButton("Salvar", DialogInterface.OnClickListener{ dialog, witch ->
-            val str = bindingDialog.eitDescription.text.toString()
-            viewModel.addTask(str)
-            dialog.dismiss()
-        })
-            .setNegativeButton("Cancelar", DialogInterface.OnClickListener{dialog,  witch ->
+        val builder = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setTitle("Adicionar nova Tarefa")
+            .setPositiveButton("Salvar") { dialog, _ ->
+                val str = bindingDialog.eitDescription.text.toString()
+                viewModel.addTask(str)
                 dialog.dismiss()
-            })
+            }
+            .setNegativeButton("Cancelar") { dialog, _ ->
+                dialog.dismiss()
+            }
         val dialog = builder.create()
         dialog.show()
     }
@@ -98,4 +101,7 @@ class MainActivity:
         viewModel.handleDone(position)
     }
 
+    override fun clickDelete(taskId: Long) {
+        viewModel.deleteTask(taskId)
+    }
 }
